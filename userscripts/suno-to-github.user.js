@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Suno to Holding the Pieces
 // @namespace    https://holdingthepieces.github.io
-// @version      1.3.0
+// @version      1.4.0
 // @description  Add Suno songs directly to your GitHub Pages music site
 // @author       Holding the Pieces
 // @match        https://suno.com/s/*
@@ -85,6 +85,70 @@
         return '';
     }
 
+    // Scrape duration from audio player
+    function scrapeDurationFromPage() {
+        // Try to find the audio element
+        const audio = document.querySelector('audio');
+        if (audio && audio.duration && !isNaN(audio.duration)) {
+            console.log('✓ Found duration from audio element:', audio.duration);
+            return audio.duration;
+        }
+
+        // Try to find duration displayed in UI
+        const timeSelectors = ['[class*="duration"]', '[class*="time"]', 'time'];
+        for (let selector of timeSelectors) {
+            const elements = document.querySelectorAll(selector);
+            for (let elem of elements) {
+                const text = elem.textContent || elem.innerText;
+                // Match patterns like "2:30" or "02:30"
+                const match = text.match(/(\d+):(\d+)/);
+                if (match) {
+                    const minutes = parseInt(match[1]);
+                    const seconds = parseInt(match[2]);
+                    const totalSeconds = minutes * 60 + seconds;
+                    console.log('✓ Found duration from UI:', totalSeconds, 'seconds');
+                    return totalSeconds;
+                }
+            }
+        }
+
+        console.log('✗ Could not find duration');
+        return 0;
+    }
+
+    // Scrape tags/genre from page
+    function scrapeTagsFromPage() {
+        // Try to find tags/genre elements
+        const tagSelectors = [
+            '[class*="tag"]',
+            '[class*="Tag"]',
+            '[class*="genre"]',
+            '[class*="Genre"]',
+            '[class*="style"]',
+            '[class*="Style"]'
+        ];
+
+        let tags = [];
+        for (let selector of tagSelectors) {
+            const elements = document.querySelectorAll(selector);
+            for (let elem of elements) {
+                const text = (elem.innerText || elem.textContent || '').trim();
+                if (text && text.length < 50 && text.length > 2) { // Tags are usually short
+                    tags.push(text);
+                }
+            }
+        }
+
+        if (tags.length > 0) {
+            const result = tags.join(', ');
+            console.log('✓ Found tags:', result);
+            return result;
+        }
+
+        console.log('✗ No tags found');
+        return '';
+    }
+
     // Extract song data from the page
     function extractSongData() {
         try {
@@ -98,9 +162,15 @@
                         const clip = data.props.pageProps.clip;
                         if (clip) {
                             const result = extractFromClip(clip);
-                            // If no lyrics in clip data, try scraping from page
+                            // Fallback to page scraping if data missing
                             if (!result.lyrics) {
                                 result.lyrics = scrapeLyricsFromPage();
+                            }
+                            if (!result.duration || result.duration === 0) {
+                                result.duration = scrapeDurationFromPage();
+                            }
+                            if (!result.tags) {
+                                result.tags = scrapeTagsFromPage();
                             }
                             return result;
                         }
@@ -110,9 +180,11 @@
                 }
             }
 
-            // Fallback: try meta tags and scrape lyrics
+            // Fallback: try meta tags and scrape everything from page
             const result = extractFromMeta();
             result.lyrics = scrapeLyricsFromPage();
+            result.duration = scrapeDurationFromPage();
+            result.tags = scrapeTagsFromPage();
             return result;
         } catch (error) {
             console.error('Error extracting song data:', error);
