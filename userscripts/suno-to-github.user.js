@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Suno to Holding the Pieces
 // @namespace    https://holdingthepieces.github.io
-// @version      1.5.0
+// @version      1.6.0
 // @description  Add Suno songs directly to your GitHub Pages music site
 // @author       Holding the Pieces
 // @match        https://suno.com/s/*
@@ -123,9 +123,10 @@
 
         // Try to find tags/genre elements - Suno specific selector first
         const tagSelectors = [
-            '.gap-2.font-sans.text-\\[12px\\]', // Specific Suno tags selector
-            'div.my-2 .font-sans.text-\\[12px\\]',
-            '.text-foreground-secondary',
+            'div.my-2 > div.gap-2', // More specific path
+            '.my-2 .text-foreground-secondary',
+            'div.my-2 div[class*="text-foreground"]',
+            '.gap-2.font-sans',
             '[class*="tag"]',
             '[class*="Tag"]',
             '[class*="genre"]',
@@ -138,9 +139,12 @@
             const elements = document.querySelectorAll(selector);
             console.log(`Checking selector: ${selector}, found ${elements.length} elements`);
 
-            for (let elem of elements) {
+            for (let i = 0; i < elements.length; i++) {
+                const elem = elements[i];
                 const text = (elem.innerText || elem.textContent || '').trim();
-                // Tags are usually short text, not too long
+                console.log(`  Element ${i}: "${text.substring(0, 50)}..."`);
+
+                // Tags are usually short text, not too long, single line
                 if (text && text.length < 100 && text.length > 2 && !text.includes('\n')) {
                     console.log('✓ Found tags in selector:', selector);
                     console.log('✓ Tags text:', text);
@@ -434,33 +438,34 @@
 
                 // Create button
                 const button = document.createElement('button');
-                button.textContent = '+ Add to Holding the Pieces';
+                button.textContent = '+HTP';
+                button.title = 'Add to Holding the Pieces'; // Tooltip on hover
                 button.style.cssText = `
                     position: fixed;
-                    bottom: 20px;
+                    top: 80px;
                     right: 20px;
-                    padding: 15px 25px;
+                    padding: 10px 16px;
                     background: linear-gradient(45deg, #e94560, #ff5f7a);
                     color: white;
                     border: none;
-                    border-radius: 50px;
+                    border-radius: 8px;
                     cursor: pointer;
-                    font-weight: 600;
-                    font-size: 14px;
-                    box-shadow: 0 4px 15px rgba(233, 69, 96, 0.4);
+                    font-weight: 700;
+                    font-size: 13px;
+                    box-shadow: 0 2px 8px rgba(233, 69, 96, 0.3);
                     z-index: 9998;
-                    transition: transform 0.2s, box-shadow 0.2s;
+                    transition: all 0.2s;
                     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
                 `;
 
                 button.onmouseover = () => {
-                    button.style.transform = 'translateY(-2px)';
-                    button.style.boxShadow = '0 6px 20px rgba(233, 69, 96, 0.6)';
+                    button.style.transform = 'scale(1.05)';
+                    button.style.boxShadow = '0 4px 12px rgba(233, 69, 96, 0.5)';
                 };
 
                 button.onmouseout = () => {
-                    button.style.transform = 'translateY(0)';
-                    button.style.boxShadow = '0 4px 15px rgba(233, 69, 96, 0.4)';
+                    button.style.transform = 'scale(1)';
+                    button.style.boxShadow = '0 2px 8px rgba(233, 69, 96, 0.3)';
                 };
 
                 button.onclick = () => {
