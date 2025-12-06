@@ -17,7 +17,8 @@
       "genre": "Emo Pop Rock",
       "file": "music/emo-pop-rock/01 The Pink Elephant.mp3",
       "artwork": "artwork/singles/the-pink-elephant.png",
-      "duration": "3:26"
+      "duration": "3:26",
+      "lyrics": null
     },
     {
       "id": 2,
@@ -26,7 +27,8 @@
       "genre": "Emo Pop Rock",
       "file": "music/emo-pop-rock/02 The Pink Elephant(Alt Version).mp3",
       "artwork": "artwork/singles/the-pink-elephant.png",
-      "duration": "5:34"
+      "duration": "5:34",
+      "lyrics": null
     },
     {
       "id": 3,
@@ -35,7 +37,8 @@
       "genre": "Emo Pop Rock",
       "file": "music/emo-pop-rock/03 The Defiled.mp3",
       "artwork": "artwork/singles/the-defiled.jpg",
-      "duration": "3:44"
+      "duration": "3:44",
+      "lyrics": null
     },
     {
       "id": 4,
@@ -44,7 +47,8 @@
       "genre": "Emo Pop Rock",
       "file": "music/emo-pop-rock/04 The Pieces.mp3",
       "artwork": "artwork/albums/poetic-pain-cover.jpg",
-      "duration": "3:16"
+      "duration": "3:16",
+      "lyrics": null
     },
     {
       "id": 5,

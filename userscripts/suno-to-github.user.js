@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Suno to Holding the Pieces
 // @namespace    https://holdingthepieces.github.io
-// @version      1.0.1
+// @version      1.1.0
 // @description  Add Suno songs directly to your GitHub Pages music site
 // @author       Holding the Pieces
 // @match        https://suno.com/s/*
@@ -128,24 +128,26 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: white;
+            background: #1a1a2e;
             padding: 30px;
             border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
             z-index: 10000;
             min-width: 400px;
+            max-width: 500px;
+            border: 1px solid #2a2a3e;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         `;
 
         dialog.innerHTML = `
-            <h2 style="margin: 0 0 20px 0; color: #1a1a2e;">Add to Holding the Pieces</h2>
+            <h2 style="margin: 0 0 20px 0; color: #eee; background: linear-gradient(45deg, #e94560, #ff5f7a); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Add to Holding the Pieces</h2>
             <div style="margin-bottom: 15px;">
-                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Title:</label>
-                <input type="text" id="song-title" value="${songData.title}" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+                <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #eee; font-size: 14px;">Title:</label>
+                <input type="text" id="song-title" value="${songData.title}" style="width: 100%; padding: 12px; border: 2px solid #2a2a3e; border-radius: 6px; box-sizing: border-box; background: #16213e; color: #eee; font-size: 14px;">
             </div>
             <div style="margin-bottom: 15px;">
-                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Genre:</label>
-                <select id="song-genre" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #eee; font-size: 14px;">Genre:</label>
+                <select id="song-genre" style="width: 100%; padding: 12px; border: 2px solid #2a2a3e; border-radius: 6px; background: #16213e; color: #eee; font-size: 14px;">
                     <option value="Emo Pop Rock" ${songData.suggestedGenre === 'Emo Pop Rock' ? 'selected' : ''}>Emo Pop Rock</option>
                     <option value="Hip Hop" ${songData.suggestedGenre === 'Hip Hop' ? 'selected' : ''}>Hip Hop</option>
                     <option value="Drum and Bass" ${songData.suggestedGenre === 'Drum and Bass' ? 'selected' : ''}>Drum & Bass</option>
@@ -153,25 +155,26 @@
                 </select>
             </div>
             <div style="margin-bottom: 15px;">
-                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Album (Optional):</label>
-                <select id="song-album" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #eee; font-size: 14px;">Album (Optional):</label>
+                <select id="song-album" style="width: 100%; padding: 12px; border: 2px solid #2a2a3e; border-radius: 6px; background: #16213e; color: #eee; font-size: 14px;">
                     <option value="">Single (No Album)</option>
                     ${ALBUMS.map(a => `<option value="${a.id}">${a.name}</option>`).join('')}
                 </select>
             </div>
-            <div style="margin-bottom: 20px; padding: 10px; background: #f5f5f5; border-radius: 4px; font-size: 12px;">
-                <strong>Duration:</strong> ${Math.floor(songData.duration / 60)}:${(songData.duration % 60).toString().padStart(2, '0')}<br>
-                <strong>Tags:</strong> ${songData.tags || 'None'}
+            <div style="margin-bottom: 20px; padding: 15px; background: #16213e; border-radius: 6px; font-size: 13px; color: #aaa; border: 1px solid #2a2a3e;">
+                <strong style="color: #eee;">Duration:</strong> ${Math.floor(songData.duration / 60)}:${(songData.duration % 60).toString().padStart(2, '0')}<br>
+                <strong style="color: #eee;">Tags:</strong> ${songData.tags || 'None'}<br>
+                <strong style="color: #eee;">Has Lyrics:</strong> ${songData.lyrics ? 'Yes' : 'No'}
             </div>
             <div style="display: flex; gap: 10px;">
-                <button id="add-song-btn" style="flex: 1; padding: 12px; background: #e94560; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px;">
+                <button id="add-song-btn" style="flex: 1; padding: 14px; background: linear-gradient(45deg, #e94560, #ff5f7a); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; transition: transform 0.2s;">
                     Add to Site
                 </button>
-                <button id="cancel-btn" style="flex: 1; padding: 12px; background: #ccc; color: #333; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px;">
+                <button id="cancel-btn" style="flex: 1; padding: 14px; background: #2a2a3e; color: #eee; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; transition: transform 0.2s;">
                     Cancel
                 </button>
             </div>
-            <div id="status-message" style="margin-top: 15px; padding: 10px; border-radius: 4px; display: none;"></div>
+            <div id="status-message" style="margin-top: 15px; padding: 12px; border-radius: 6px; display: none; font-size: 13px;"></div>
         `;
 
         const overlay = document.createElement('div');
@@ -188,8 +191,17 @@
         document.body.appendChild(overlay);
         document.body.appendChild(dialog);
 
+        // Add hover effects
+        const addBtn = dialog.querySelector('#add-song-btn');
+        const cancelBtn = dialog.querySelector('#cancel-btn');
+
+        addBtn.onmouseover = () => addBtn.style.transform = 'scale(1.02)';
+        addBtn.onmouseout = () => addBtn.style.transform = 'scale(1)';
+        cancelBtn.onmouseover = () => cancelBtn.style.transform = 'scale(1.02)';
+        cancelBtn.onmouseout = () => cancelBtn.style.transform = 'scale(1)';
+
         // Event listeners
-        dialog.querySelector('#cancel-btn').onclick = () => {
+        cancelBtn.onclick = () => {
             overlay.remove();
             dialog.remove();
         };
