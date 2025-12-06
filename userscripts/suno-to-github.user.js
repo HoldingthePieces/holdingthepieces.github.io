@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Suno to Holding the Pieces
 // @namespace    https://holdingthepieces.github.io
-// @version      1.7.0
+// @version      1.8.0
 // @description  Add Suno songs directly to your GitHub Pages music site
 // @author       Holding the Pieces
 // @match        https://suno.com/s/*
@@ -475,26 +475,30 @@
             if (targetArea) {
                 clearInterval(checkInterval);
 
+                // Load saved button position from localStorage
+                const savedPosition = JSON.parse(localStorage.getItem('htpButtonPosition') || '{"top":"80px","right":"20px"}');
+
                 // Create button
                 const button = document.createElement('button');
                 button.textContent = '+HTP';
-                button.title = 'Add to Holding the Pieces'; // Tooltip on hover
+                button.title = 'Add to Holding the Pieces (Drag to move)';
                 button.style.cssText = `
                     position: fixed;
-                    top: 80px;
-                    right: 20px;
+                    top: ${savedPosition.top};
+                    right: ${savedPosition.right};
                     padding: 10px 16px;
                     background: linear-gradient(45deg, #e94560, #ff5f7a);
                     color: white;
                     border: none;
                     border-radius: 8px;
-                    cursor: pointer;
+                    cursor: move;
                     font-weight: 700;
                     font-size: 13px;
                     box-shadow: 0 2px 8px rgba(233, 69, 96, 0.3);
                     z-index: 9998;
-                    transition: all 0.2s;
+                    transition: box-shadow 0.2s;
                     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+                    user-select: none;
                 `;
 
                 button.onmouseover = () => {
@@ -507,11 +511,61 @@
                     button.style.boxShadow = '0 2px 8px rgba(233, 69, 96, 0.3)';
                 };
 
-                button.onclick = () => {
-                    // Extract song data when button is clicked (not when page loads)
-                    songData = extractSongData();
-                    console.log('Extracted song data:', songData);
-                    showAddSongDialog();
+                // Drag functionality
+                let isDragging = false;
+                let dragStartX, dragStartY, buttonStartX, buttonStartY;
+
+                button.onmousedown = (e) => {
+                    // Right side of button for dragging, left side for clicking
+                    const rect = button.getBoundingClientRect();
+                    const clickX = e.clientX - rect.left;
+
+                    if (clickX > rect.width / 2) {
+                        // Right half - start dragging
+                        isDragging = true;
+                        dragStartX = e.clientX;
+                        dragStartY = e.clientY;
+                        buttonStartX = button.offsetLeft;
+                        buttonStartY = button.offsetTop;
+                        button.style.transition = 'none'; // Disable transition while dragging
+                        e.preventDefault();
+                    }
+                };
+
+                document.onmousemove = (e) => {
+                    if (isDragging) {
+                        const deltaX = dragStartX - e.clientX;
+                        const deltaY = e.clientY - dragStartY;
+
+                        const newRight = window.innerWidth - buttonStartX - button.offsetWidth + deltaX;
+                        const newTop = buttonStartY + deltaY;
+
+                        // Keep button within viewport bounds
+                        const boundedTop = Math.max(0, Math.min(newTop, window.innerHeight - button.offsetHeight));
+                        const boundedRight = Math.max(0, Math.min(newRight, window.innerWidth - button.offsetWidth));
+
+                        button.style.top = boundedTop + 'px';
+                        button.style.right = boundedRight + 'px';
+                    }
+                };
+
+                document.onmouseup = (e) => {
+                    if (isDragging) {
+                        isDragging = false;
+                        button.style.transition = 'box-shadow 0.2s';
+
+                        // Save position to localStorage
+                        const position = {
+                            top: button.style.top,
+                            right: button.style.right
+                        };
+                        localStorage.setItem('htpButtonPosition', JSON.stringify(position));
+                    } else if (e.target === button) {
+                        // Left half - trigger add song dialog
+                        songData = extractSongData();
+                        console.log('Extracted song data:', songData);
+                        showAddSongDialog();
+                    }
                 };
 
                 document.body.appendChild(button);
