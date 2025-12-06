@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Suno to Holding the Pieces
 // @namespace    https://holdingthepieces.github.io
-// @version      1.1.0
+// @version      1.1.1
 // @description  Add Suno songs directly to your GitHub Pages music site
 // @author       Holding the Pieces
 // @match        https://suno.com/s/*
@@ -83,6 +83,18 @@
             }
         }
 
+        // Try multiple possible locations for lyrics
+        let lyrics = clip.metadata?.gpt_description_prompt ||
+                     clip.metadata?.prompt ||
+                     clip.lyrics ||
+                     clip.lyric ||
+                     clip.metadata?.lyrics ||
+                     '';
+
+        // Debug: log the clip object to console to see what's available
+        console.log('Suno Clip Data:', clip);
+        console.log('Extracted Lyrics:', lyrics);
+
         return {
             title: clip.title || clip.metadata?.prompt || 'Untitled',
             audioUrl: clip.audio_url,
@@ -90,7 +102,7 @@
             duration: clip.metadata?.duration_seconds || 0,
             suggestedGenre: suggestedGenre,
             tags: clip.metadata?.tags || '',
-            lyrics: clip.metadata?.prompt || clip.lyric || ''
+            lyrics: lyrics
         };
     }
 
