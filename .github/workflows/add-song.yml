@@ -32,6 +32,10 @@ on:
         description: 'Album ID (leave empty for single)'
         required: false
         type: string
+      lyrics:
+        description: 'Song lyrics'
+        required: false
+        type: string
 
 jobs:
   add-song:
@@ -101,6 +105,7 @@ jobs:
 
           # Create new track entry
           album_value = "${{ inputs.album }}" if "${{ inputs.album }}" else None
+          lyrics_value = "${{ inputs.lyrics }}" if "${{ inputs.lyrics }}" else None
 
           new_track = {
               "id": next_id,
@@ -109,7 +114,8 @@ jobs:
               "genre": "${{ inputs.genre }}",
               "file": "${{ env.AUDIO_FILE }}",
               "artwork": "${{ env.ARTWORK_FILE }}",
-              "duration": duration_str
+              "duration": duration_str,
+              "lyrics": lyrics_value
           }
 
           # Add to tracks

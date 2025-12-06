@@ -89,7 +89,8 @@
             artworkUrl: clip.image_large_url || clip.image_url,
             duration: clip.metadata?.duration_seconds || 0,
             suggestedGenre: suggestedGenre,
-            tags: clip.metadata?.tags || ''
+            tags: clip.metadata?.tags || '',
+            lyrics: clip.metadata?.prompt || clip.lyric || ''
         };
     }
 
@@ -104,7 +105,8 @@
             artworkUrl: artworkUrl,
             duration: 0, // Can't get from meta tags
             suggestedGenre: 'Emo Pop Rock',
-            tags: ''
+            tags: '',
+            lyrics: ''
         };
     }
 
@@ -253,7 +255,8 @@
                     artwork_url: songData.artworkUrl,
                     duration: songData.duration.toString(),
                     genre: genre,
-                    album: album
+                    album: album,
+                    lyrics: songData.lyrics || ''
                 }
             })
         });

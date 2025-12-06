@@ -136,6 +136,14 @@ function loadTrack(index) {
     currentAlbum.textContent = album ? album.title : 'Single';
     currentGenre.textContent = track.genre;
 
+    // Update lyrics
+    const lyricsContent = document.getElementById('lyrics-content');
+    if (track.lyrics) {
+        lyricsContent.innerHTML = track.lyrics.replace(/\n/g, '<br>');
+    } else {
+        lyricsContent.innerHTML = '<p class="lyrics-placeholder">No lyrics available for this track</p>';
+    }
+
     // Update active track in list
     document.querySelectorAll('.track-item').forEach((item, i) => {
         item.classList.toggle('active', i === index);
