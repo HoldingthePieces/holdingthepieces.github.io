@@ -1,0 +1,137 @@
+name: Add Song from Suno
+
+on:
+  workflow_dispatch:
+    inputs:
+      title:
+        description: 'Song title'
+        required: true
+        type: string
+      audio_url:
+        description: 'Audio file URL'
+        required: true
+        type: string
+      artwork_url:
+        description: 'Artwork URL'
+        required: true
+        type: string
+      duration:
+        description: 'Duration in seconds'
+        required: true
+        type: string
+      genre:
+        description: 'Genre'
+        required: true
+        type: choice
+        options:
+          - Emo Pop Rock
+          - Hip Hop
+          - Drum and Bass
+          - EDM
+      album:
+        description: 'Album ID (leave empty for single)'
+        required: false
+        type: string
+
+jobs:
+  add-song:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Download audio file
+        run: |
+          # Determine folder based on genre
+          case "${{ inputs.genre }}" in
+            "Emo Pop Rock")
+              FOLDER="music/emo-pop-rock"
+              ;;
+            "Hip Hop")
+              FOLDER="music/hip-hop"
+              ;;
+            "Drum and Bass")
+              FOLDER="music/drum-and-bass"
+              ;;
+            "EDM")
+              FOLDER="music/edm"
+              ;;
+          esac
+
+          # Create safe filename
+          FILENAME=$(echo "${{ inputs.title }}" | sed 's/[^a-zA-Z0-9]/-/g' | tr '[:upper:]' '[:lower:]')
+
+          # Download audio
+          curl -L -o "${FOLDER}/${FILENAME}.mp3" "${{ inputs.audio_url }}"
+
+          # Save filename for next steps
+          echo "AUDIO_FILE=${FOLDER}/${FILENAME}.mp3" >> $GITHUB_ENV
+          echo "FILENAME=${FILENAME}" >> $GITHUB_ENV
+
+      - name: Download artwork
+        run: |
+          FILENAME="${{ env.FILENAME }}"
+          curl -L -o "artwork/singles/${FILENAME}.jpg" "${{ inputs.artwork_url }}"
+          echo "ARTWORK_FILE=artwork/singles/${FILENAME}.jpg" >> $GITHUB_ENV
+
+      - name: Update music.json
+        run: |
+          python3 << 'PYTHON_SCRIPT'
+          import json
+          import sys
+
+          # Load existing music.json
+          with open('data/music.json', 'r') as f:
+              data = json.load(f)
+
+          # Calculate duration in MM:SS format
+          total_seconds = int(float("${{ inputs.duration }}"))
+          minutes = total_seconds // 60
+          seconds = total_seconds % 60
+          duration_str = f"{minutes}:{seconds:02d}"
+
+          # Get next track ID
+          next_id = max([track['id'] for track in data['tracks']], default=0) + 1
+
+          # Create new track entry
+          album_value = "${{ inputs.album }}" if "${{ inputs.album }}" else None
+
+          new_track = {
+              "id": next_id,
+              "title": "${{ inputs.title }}",
+              "album": album_value,
+              "genre": "${{ inputs.genre }}",
+              "file": "${{ env.AUDIO_FILE }}",
+              "artwork": "${{ env.ARTWORK_FILE }}",
+              "duration": duration_str
+          }
+
+          # Add to tracks
+          data['tracks'].append(new_track)
+
+          # Save updated music.json
+          with open('data/music.json', 'w') as f:
+              json.dump(data, f, indent=2)
+
+          print(f"✅ Added: {new_track['title']}")
+          PYTHON_SCRIPT
+
+      - name: Commit and push changes
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+          git add .
+          git commit -m "Add song: ${{ inputs.title }}
+
+          - Genre: ${{ inputs.genre }}
+          - Duration: $(python3 -c "s=int(float('${{ inputs.duration }}')); print(f'{s//60}:{s%60:02d}')")
+          - Auto-added from Suno via GitHub Actions
+
+          🤖 Automated via Userscript"
+          git push
