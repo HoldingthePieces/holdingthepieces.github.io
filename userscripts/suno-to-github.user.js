@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Suno to Holding the Pieces
 // @namespace    https://holdingthepieces.github.io
-// @version      1.4.2
+// @version      1.5.0
 // @description  Add Suno songs directly to your GitHub Pages music site
 // @author       Holding the Pieces
 // @match        https://suno.com/s/*
@@ -119,8 +119,13 @@
 
     // Scrape tags/genre from page
     function scrapeTagsFromPage() {
-        // Try to find tags/genre elements
+        console.log('Attempting to scrape tags from page...');
+
+        // Try to find tags/genre elements - Suno specific selector first
         const tagSelectors = [
+            '.gap-2.font-sans.text-\\[12px\\]', // Specific Suno tags selector
+            'div.my-2 .font-sans.text-\\[12px\\]',
+            '.text-foreground-secondary',
             '[class*="tag"]',
             '[class*="Tag"]',
             '[class*="genre"]',
@@ -129,21 +134,19 @@
             '[class*="Style"]'
         ];
 
-        let tags = [];
         for (let selector of tagSelectors) {
             const elements = document.querySelectorAll(selector);
+            console.log(`Checking selector: ${selector}, found ${elements.length} elements`);
+
             for (let elem of elements) {
                 const text = (elem.innerText || elem.textContent || '').trim();
-                if (text && text.length < 50 && text.length > 2) { // Tags are usually short
-                    tags.push(text);
+                // Tags are usually short text, not too long
+                if (text && text.length < 100 && text.length > 2 && !text.includes('\n')) {
+                    console.log('✓ Found tags in selector:', selector);
+                    console.log('✓ Tags text:', text);
+                    return text;
                 }
             }
-        }
-
-        if (tags.length > 0) {
-            const result = tags.join(', ');
-            console.log('✓ Found tags:', result);
-            return result;
         }
 
         console.log('✗ No tags found');
