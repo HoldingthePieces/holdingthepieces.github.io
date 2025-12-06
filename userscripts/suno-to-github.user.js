@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Suno to Holding the Pieces
 // @namespace    https://holdingthepieces.github.io
-// @version      1.4.1
+// @version      1.4.2
 // @description  Add Suno songs directly to your GitHub Pages music site
 // @author       Holding the Pieces
 // @match        https://suno.com/s/*
@@ -99,7 +99,8 @@
         for (let selector of timeSelectors) {
             const elements = document.querySelectorAll(selector);
             for (let elem of elements) {
-                const text = elem.textContent || elem.innerText;
+                const text = (elem.textContent || elem.innerText || '').trim();
+                if (!text) continue; // Skip empty elements
                 // Match patterns like "2:30" or "02:30"
                 const match = text.match(/(\d+):(\d+)/);
                 if (match) {
