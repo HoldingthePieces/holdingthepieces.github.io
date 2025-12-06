@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Suno to Holding the Pieces
 // @namespace    https://holdingthepieces.github.io
-// @version      1.1.1
+// @version      1.2.0
 // @description  Add Suno songs directly to your GitHub Pages music site
 // @author       Holding the Pieces
 // @match        https://suno.com/s/*
@@ -42,6 +42,31 @@
 
     let songData = null;
 
+    // Scrape lyrics from visible page DOM
+    function scrapeLyricsFromPage() {
+        // Try to find lyrics in various possible containers
+        const selectors = [
+            '[class*="lyrics"]',
+            '[class*="Lyrics"]',
+            '[data-testid*="lyrics"]',
+            'pre',
+            '[class*="description"]'
+        ];
+
+        for (let selector of selectors) {
+            const elements = document.querySelectorAll(selector);
+            for (let elem of elements) {
+                const text = elem.innerText || elem.textContent;
+                if (text && text.length > 50) { // Assume lyrics are at least 50 chars
+                    console.log('Found lyrics in selector:', selector);
+                    console.log('Lyrics text:', text);
+                    return text.trim();
+                }
+            }
+        }
+        return '';
+    }
+
     // Extract song data from the page
     function extractSongData() {
         try {
@@ -54,7 +79,12 @@
                     if (data && data.props && data.props.pageProps) {
                         const clip = data.props.pageProps.clip;
                         if (clip) {
-                            return extractFromClip(clip);
+                            const result = extractFromClip(clip);
+                            // If no lyrics in clip data, try scraping from page
+                            if (!result.lyrics) {
+                                result.lyrics = scrapeLyricsFromPage();
+                            }
+                            return result;
                         }
                     }
                 } catch (e) {
@@ -62,8 +92,10 @@
                 }
             }
 
-            // Fallback: try meta tags
-            return extractFromMeta();
+            // Fallback: try meta tags and scrape lyrics
+            const result = extractFromMeta();
+            result.lyrics = scrapeLyricsFromPage();
+            return result;
         } catch (error) {
             console.error('Error extracting song data:', error);
             return null;
