@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Suno to Holding the Pieces
 // @namespace    https://holdingthepieces.github.io
-// @version      1.4.0
+// @version      1.4.1
 // @description  Add Suno songs directly to your GitHub Pages music site
 // @author       Holding the Pieces
 // @match        https://suno.com/s/*
@@ -247,12 +247,14 @@
     // Create and show the dialog
     function showAddSongDialog() {
         if (!songData) {
-            alert('Could not extract song data from this page. Make sure you\'re on a Suno song page.');
+            console.error('Song data extraction failed');
+            alert('Could not extract song data from this page.\n\nPlease:\n1. Make sure you\'re on a Suno song page\n2. Wait for the page to fully load\n3. Check the browser console for errors\n4. Try refreshing the page');
             return;
         }
 
         if (!songData.audioUrl) {
-            alert('Could not find audio URL. The song might still be processing.');
+            console.error('No audio URL found in song data:', songData);
+            alert('Could not find audio URL. The song might still be processing or the page hasn\'t fully loaded yet. Try waiting a moment and clicking again.');
             return;
         }
 
@@ -415,18 +417,16 @@
 
     // Add the button to the page
     function addButton() {
-        // Wait for page to be ready
-        const checkInterval = setInterval(() => {
-            // Look for a good place to add the button
-            const targetArea = document.querySelector('[class*="SongPage"]') ||
-                             document.querySelector('main') ||
-                             document.body;
+        // Wait for page to be ready - give it a bit more time
+        setTimeout(() => {
+            const checkInterval = setInterval(() => {
+                // Look for a good place to add the button
+                const targetArea = document.querySelector('[class*="SongPage"]') ||
+                                 document.querySelector('main') ||
+                                 document.body;
 
             if (targetArea) {
                 clearInterval(checkInterval);
-
-                // Extract song data
-                songData = extractSongData();
 
                 // Create button
                 const button = document.createElement('button');
@@ -459,14 +459,20 @@
                     button.style.boxShadow = '0 4px 15px rgba(233, 69, 96, 0.4)';
                 };
 
-                button.onclick = showAddSongDialog;
+                button.onclick = () => {
+                    // Extract song data when button is clicked (not when page loads)
+                    songData = extractSongData();
+                    console.log('Extracted song data:', songData);
+                    showAddSongDialog();
+                };
 
                 document.body.appendChild(button);
             }
-        }, 500);
+            }, 500);
 
-        // Stop trying after 10 seconds
-        setTimeout(() => clearInterval(checkInterval), 10000);
+            // Stop trying after 10 seconds
+            setTimeout(() => clearInterval(checkInterval), 10000);
+        }, 1000); // Wait 1 second before starting to check for button placement
     }
 
     // Initialize
