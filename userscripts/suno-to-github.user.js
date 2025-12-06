@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Suno to Holding the Pieces
 // @namespace    https://holdingthepieces.github.io
-// @version      1.6.0
+// @version      1.7.0
 // @description  Add Suno songs directly to your GitHub Pages music site
 // @author       Holding the Pieces
 // @match        https://suno.com/s/*
@@ -89,26 +89,50 @@
     function scrapeDurationFromPage() {
         // Try to find the audio element
         const audio = document.querySelector('audio');
-        if (audio && audio.duration && !isNaN(audio.duration)) {
+        if (audio && audio.duration && !isNaN(audio.duration) && audio.duration > 0) {
             console.log('✓ Found duration from audio element:', audio.duration);
             return audio.duration;
         }
 
-        // Try to find duration displayed in UI
-        const timeSelectors = ['[class*="duration"]', '[class*="time"]', 'time'];
+        // Try to find duration displayed in UI - look for patterns like "0:03 / 2:45"
+        const timeSelectors = ['[class*="duration"]', '[class*="time"]', 'time', 'span', 'div'];
         for (let selector of timeSelectors) {
             const elements = document.querySelectorAll(selector);
             for (let elem of elements) {
                 const text = (elem.textContent || elem.innerText || '').trim();
                 if (!text) continue; // Skip empty elements
-                // Match patterns like "2:30" or "02:30"
+
+                // Look for pattern like "0:03 / 2:45" (current / total)
+                const totalMatch = text.match(/\/\s*(\d+):(\d+)/);
+                if (totalMatch) {
+                    const minutes = parseInt(totalMatch[1]);
+                    const seconds = parseInt(totalMatch[2]);
+                    const totalSeconds = minutes * 60 + seconds;
+                    console.log('✓ Found total duration from UI:', totalSeconds, 'seconds', '(from:', text + ')');
+                    return totalSeconds;
+                }
+            }
+        }
+
+        // Fallback: try to find any time pattern, but prefer longer durations
+        for (let selector of timeSelectors) {
+            const elements = document.querySelectorAll(selector);
+            for (let elem of elements) {
+                const text = (elem.textContent || elem.innerText || '').trim();
+                if (!text) continue;
+
+                // Match patterns like "2:30" or "02:30" (but only if > 30 seconds to avoid current time)
                 const match = text.match(/(\d+):(\d+)/);
                 if (match) {
                     const minutes = parseInt(match[1]);
                     const seconds = parseInt(match[2]);
                     const totalSeconds = minutes * 60 + seconds;
-                    console.log('✓ Found duration from UI:', totalSeconds, 'seconds');
-                    return totalSeconds;
+
+                    // Only accept if it's more than 30 seconds (avoid current playback time)
+                    if (totalSeconds > 30) {
+                        console.log('✓ Found duration from UI:', totalSeconds, 'seconds');
+                        return totalSeconds;
+                    }
                 }
             }
         }
@@ -121,9 +145,24 @@
     function scrapeTagsFromPage() {
         console.log('Attempting to scrape tags from page...');
 
-        // Try to find tags/genre elements - Suno specific selector first
+        // First try the most specific selector and take the first element (which is the tags/description)
+        const specificSelector = 'div.my-2 > div.gap-2';
+        const specificElements = document.querySelectorAll(specificSelector);
+
+        if (specificElements.length > 0) {
+            const text = (specificElements[0].innerText || specificElements[0].textContent || '').trim();
+            console.log('Found element with specific selector:', text.substring(0, 100));
+
+            // Check if it's not the "Show Summary" button
+            if (text && !text.includes('Show Summary') && text.length > 5) {
+                console.log('✓ Found tags in selector:', specificSelector);
+                console.log('✓ Tags text:', text);
+                return text;
+            }
+        }
+
+        // Fallback to generic selectors
         const tagSelectors = [
-            'div.my-2 > div.gap-2', // More specific path
             '.my-2 .text-foreground-secondary',
             'div.my-2 div[class*="text-foreground"]',
             '.gap-2.font-sans',
@@ -144,8 +183,8 @@
                 const text = (elem.innerText || elem.textContent || '').trim();
                 console.log(`  Element ${i}: "${text.substring(0, 50)}..."`);
 
-                // Tags are usually short text, not too long, single line
-                if (text && text.length < 100 && text.length > 2 && !text.includes('\n')) {
+                // Tags/description, exclude Show Summary button
+                if (text && !text.includes('Show Summary') && text.length > 5 && !text.includes('\n\n')) {
                     console.log('✓ Found tags in selector:', selector);
                     console.log('✓ Tags text:', text);
                     return text;
