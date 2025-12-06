@@ -38,8 +38,8 @@ async function loadMusicData() {
         const response = await fetch('data/music.json');
         musicData = await response.json();
 
-        // Set artist name
-        artistName.textContent = musicData.artist;
+        // Title is set in HTML, don't override
+        // artistName.textContent = musicData.artist;
 
         // Initialize with all tracks
         filteredTracks = [...musicData.tracks];
