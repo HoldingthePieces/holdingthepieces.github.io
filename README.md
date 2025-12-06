@@ -94,7 +94,7 @@ You can add more genres by editing the HTML in `index.html` (line 30-34).
    - Under "Source", select "main" branch
    - Click "Save"
 
-3. Your site will be available at: `https://p3psie.github.io/`
+3. Your site will be available at: `https://holdingthepieces.github.io/`
 
 ## File Structure
 

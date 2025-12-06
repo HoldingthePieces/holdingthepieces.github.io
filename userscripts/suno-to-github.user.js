@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         Suno to Holding the Pieces
-// @namespace    https://p3psie.github.io
-// @version      1.0.0
+// @namespace    https://holdingthepieces.github.io
+// @version      1.0.1
 // @description  Add Suno songs directly to your GitHub Pages music site
-// @author       P3PSIE
+// @author       Holding the Pieces
 // @match        https://suno.com/s/*
 // @match        https://suno.com/song/*
 // @grant        none
@@ -17,7 +17,7 @@
     // Get your GitHub token here: https://github.com/settings/tokens
     // Required scopes: repo, workflow
     const GITHUB_TOKEN = 'YOUR_GITHUB_TOKEN_HERE'; // ⚠️ REPLACE THIS
-    const GITHUB_REPO = 'P3PSIE/p3psie.github.io';
+    const GITHUB_REPO = 'holdingthepieces/holdingthepieces.github.io';
     // =========================
 
     // Genre mapping from Suno tags to your site's genres
