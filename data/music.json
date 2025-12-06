@@ -45,6 +45,16 @@
       "file": "music/emo-pop-rock/04 The Pieces.mp3",
       "artwork": "artwork/albums/poetic-pain-cover.jpg",
       "duration": "3:16"
+    },
+    {
+      "id": 5,
+      "title": "Who are you?",
+      "album": null,
+      "genre": "Hip Hop",
+      "file": "music/hip-hop/who-are-you-.mp3",
+      "artwork": "artwork/singles/who-are-you-.jpg",
+      "duration": "0:00",
+      "lyrics": null
     }
   ]
 }
