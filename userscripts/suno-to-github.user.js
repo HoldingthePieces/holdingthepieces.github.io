@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Suno to Holding the Pieces
 // @namespace    https://holdingthepieces.github.io
-// @version      1.2.0
+// @version      1.2.1
 // @description  Add Suno songs directly to your GitHub Pages music site
 // @author       Holding the Pieces
 // @match        https://suno.com/s/*
@@ -44,26 +44,42 @@
 
     // Scrape lyrics from visible page DOM
     function scrapeLyricsFromPage() {
+        console.log('Attempting to scrape lyrics from page...');
+
         // Try to find lyrics in various possible containers
         const selectors = [
             '[class*="lyrics"]',
             '[class*="Lyrics"]',
             '[data-testid*="lyrics"]',
+            '[class*="prompt"]',
+            '[class*="Prompt"]',
             'pre',
-            '[class*="description"]'
+            '[class*="description"]',
+            '[class*="Description"]',
+            'textarea',
+            '[role="textbox"]',
+            '[contenteditable="true"]',
+            'p', // Try all paragraphs as last resort
+            'div' // Try all divs as very last resort
         ];
 
         for (let selector of selectors) {
             const elements = document.querySelectorAll(selector);
+            console.log(`Checking selector: ${selector}, found ${elements.length} elements`);
+
             for (let elem of elements) {
-                const text = elem.innerText || elem.textContent;
-                if (text && text.length > 50) { // Assume lyrics are at least 50 chars
-                    console.log('Found lyrics in selector:', selector);
-                    console.log('Lyrics text:', text);
-                    return text.trim();
+                const text = (elem.innerText || elem.textContent || '').trim();
+                // Lyrics are usually at least 50 chars and contain line breaks
+                if (text.length > 50 && text.includes('\n')) {
+                    console.log('✓ Found lyrics in selector:', selector);
+                    console.log('✓ Lyrics preview:', text.substring(0, 100) + '...');
+                    console.log('✓ Full lyrics:', text);
+                    return text;
                 }
             }
         }
+
+        console.log('✗ No lyrics found on page');
         return '';
     }
 
