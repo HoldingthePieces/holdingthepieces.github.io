@@ -17,7 +17,7 @@
     // Get your GitHub token here: https://github.com/settings/tokens
     // Required scopes: repo, workflow
     const GITHUB_TOKEN = 'YOUR_GITHUB_TOKEN_HERE'; // ⚠️ REPLACE THIS
-    const GITHUB_REPO = 'holdingthepieces/holdingthepieces.github.io';
+    const GITHUB_REPO = 'HoldingthePieces/holdingthepieces.github.io';
     // =========================
 
     // Genre mapping from Suno tags to your site's genres

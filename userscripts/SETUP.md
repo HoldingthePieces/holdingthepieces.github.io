@@ -65,7 +65,7 @@ This userscript allows you to add songs from Suno.com directly to your GitHub Pa
 ### Step 4: Monitor Progress
 
 After clicking "Add to Site":
-1. Go to your GitHub repo: https://github.com/holdingthepieces/holdingthepieces.github.io
+1. Go to your GitHub repo: https://github.com/HoldingthePieces/holdingthepieces.github.io
 2. Click the **"Actions"** tab
 3. You'll see "Add Song from Suno" running
 4. Wait 1-2 minutes for it to complete
