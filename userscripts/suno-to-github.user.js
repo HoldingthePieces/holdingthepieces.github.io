@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Suno to Holding the Pieces
 // @namespace    https://holdingthepieces.github.io
-// @version      1.2.1
+// @version      1.3.0
 // @description  Add Suno songs directly to your GitHub Pages music site
 // @author       Holding the Pieces
 // @match        https://suno.com/s/*
@@ -48,6 +48,10 @@
 
         // Try to find lyrics in various possible containers
         const selectors = [
+            // Specific Suno lyrics selector (found via inspect element)
+            '.font-sans.text-foreground-primary > p',
+            'div.font-sans.text-foreground-primary p',
+            // Generic fallbacks
             '[class*="lyrics"]',
             '[class*="Lyrics"]',
             '[data-testid*="lyrics"]',
@@ -58,9 +62,7 @@
             '[class*="Description"]',
             'textarea',
             '[role="textbox"]',
-            '[contenteditable="true"]',
-            'p', // Try all paragraphs as last resort
-            'div' // Try all divs as very last resort
+            '[contenteditable="true"]'
         ];
 
         for (let selector of selectors) {
@@ -69,11 +71,11 @@
 
             for (let elem of elements) {
                 const text = (elem.innerText || elem.textContent || '').trim();
-                // Lyrics are usually at least 50 chars and contain line breaks
-                if (text.length > 50 && text.includes('\n')) {
+                // Lyrics are usually at least 50 chars
+                if (text.length > 50) {
                     console.log('✓ Found lyrics in selector:', selector);
                     console.log('✓ Lyrics preview:', text.substring(0, 100) + '...');
-                    console.log('✓ Full lyrics:', text);
+                    console.log('✓ Full lyrics length:', text.length);
                     return text;
                 }
             }
