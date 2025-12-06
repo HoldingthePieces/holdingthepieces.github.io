@@ -1,0 +1,59 @@
+{
+  "artist": "Your Artist Name",
+  "albums": [
+    {
+      "id": "album-1",
+      "title": "Your Album Name",
+      "genre": "Emo Pop Rock",
+      "year": "2024",
+      "artwork": "artwork/albums/album-1-cover.jpg"
+    }
+  ],
+  "tracks": [
+    {
+      "id": 1,
+      "title": "Example Song 1",
+      "album": "album-1",
+      "genre": "Emo Pop Rock",
+      "file": "music/emo-pop-rock/song1.mp3",
+      "artwork": "artwork/singles/song1-cover.jpg",
+      "duration": "3:45"
+    },
+    {
+      "id": 2,
+      "title": "Example Song 2",
+      "album": "album-1",
+      "genre": "Emo Pop Rock",
+      "file": "music/emo-pop-rock/song2.mp3",
+      "artwork": "artwork/singles/song2-cover.jpg",
+      "duration": "4:12"
+    },
+    {
+      "id": 3,
+      "title": "Example Song 3",
+      "album": "album-1",
+      "genre": "Emo Pop Rock",
+      "file": "music/emo-pop-rock/song3.mp3",
+      "artwork": "artwork/singles/song3-cover.jpg",
+      "duration": "3:28"
+    },
+    {
+      "id": 4,
+      "title": "Example Hip Hop Track",
+      "album": null,
+      "genre": "Hip Hop",
+      "file": "music/hip-hop/track1.mp3",
+      "artwork": "artwork/singles/hiphop1-cover.jpg",
+      "duration": "3:55"
+    },
+    {
+      "id": 5,
+      "title": "Example DnB Track",
+      "album": null,
+      "genre": "Drum and Bass",
+      "file": "music/drum-and-bass/track1.mp3",
+      "artwork": "artwork/singles/dnb1-cover.jpg",
+      "duration": "5:20"
+    }
+  ]
+}
