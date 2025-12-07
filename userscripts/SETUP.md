@@ -48,17 +48,20 @@ This userscript allows you to add songs from Suno.com directly to your GitHub Pa
 ### Step 3: Use It!
 
 1. Go to any Suno song page (e.g., https://suno.com/s/8w8btUD99wcr9xtO)
-2. You'll see a button at the bottom right: **"+ Add to Holding the Pieces"**
-3. Click it!
-4. A dialog appears with:
+2. You'll see a compact **"+HTP"** button at the top right
+3. **To move the button**: Drag it by clicking and holding the right half of the button
+   - Your preferred position will be saved automatically
+4. **To add a song**: Click the left half of the button
+5. A dialog appears with:
    - Song title (editable)
-   - Genre (auto-detected, but you can change it)
+   - Genre (auto-detected from Suno tags)
    - Album (optional - select if part of an album)
-5. Click **"Add to Site"**
-6. Done! The workflow will:
+   - Lyrics (auto-extracted from Suno)
+6. Click **"Add to Site"**
+7. Done! The workflow will:
    - Download the audio file
    - Download the artwork
-   - Add it to your music.json
+   - Add it to your music.json with lyrics
    - Commit and push to GitHub
    - Your site updates automatically!
 
