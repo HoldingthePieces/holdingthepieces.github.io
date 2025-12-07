@@ -85,17 +85,31 @@ jobs:
           echo "ARTWORK_FILE=artwork/singles/${FILENAME}.jpg" >> $GITHUB_ENV
 
       - name: Update music.json
+        env:
+          SONG_TITLE: ${{ inputs.title }}
+          SONG_GENRE: ${{ inputs.genre }}
+          SONG_ALBUM: ${{ inputs.album }}
+          SONG_LYRICS: ${{ inputs.lyrics }}
+          SONG_DURATION: ${{ inputs.duration }}
         run: |
           python3 << 'PYTHON_SCRIPT'
           import json
           import sys
+          import os
 
           # Load existing music.json
           with open('data/music.json', 'r') as f:
               data = json.load(f)
 
+          # Get values from environment variables to avoid string escaping issues
+          title = os.environ.get('SONG_TITLE')
+          genre = os.environ.get('SONG_GENRE')
+          album = os.environ.get('SONG_ALBUM')
+          lyrics = os.environ.get('SONG_LYRICS')
+          duration_input = os.environ.get('SONG_DURATION')
+
           # Calculate duration in MM:SS format
-          total_seconds = int(float("${{ inputs.duration }}"))
+          total_seconds = int(float(duration_input))
           minutes = total_seconds // 60
           seconds = total_seconds % 60
           duration_str = f"{minutes}:{seconds:02d}"
@@ -104,16 +118,16 @@ jobs:
           next_id = max([track['id'] for track in data['tracks']], default=0) + 1
 
           # Create new track entry
-          album_value = "${{ inputs.album }}" if "${{ inputs.album }}" else None
-          lyrics_value = "${{ inputs.lyrics }}" if "${{ inputs.lyrics }}" else None
+          album_value = album if album else None
+          lyrics_value = lyrics if lyrics else None
 
           new_track = {
               "id": next_id,
-              "title": "${{ inputs.title }}",
+              "title": title,
               "album": album_value,
-              "genre": "${{ inputs.genre }}",
-              "file": "${{ env.AUDIO_FILE }}",
-              "artwork": "${{ env.ARTWORK_FILE }}",
+              "genre": genre,
+              "file": os.environ.get('AUDIO_FILE'),
+              "artwork": os.environ.get('ARTWORK_FILE'),
               "duration": duration_str,
               "lyrics": lyrics_value
           }
