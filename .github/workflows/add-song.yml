@@ -22,12 +22,7 @@ on:
       genre:
         description: 'Genre'
         required: true
-        type: choice
-        options:
-          - Emo Pop Rock
-          - Hip Hop
-          - Drum and Bass
-          - EDM
+        type: string
       album:
         description: 'Album ID (leave empty for single)'
         required: false
@@ -52,21 +47,12 @@ jobs:
 
       - name: Download audio file
         run: |
-          # Determine folder based on genre
-          case "${{ inputs.genre }}" in
-            "Emo Pop Rock")
-              FOLDER="music/emo-pop-rock"
-              ;;
-            "Hip Hop")
-              FOLDER="music/hip-hop"
-              ;;
-            "Drum and Bass")
-              FOLDER="music/drum-and-bass"
-              ;;
-            "EDM")
-              FOLDER="music/edm"
-              ;;
-          esac
+          # Create folder name from genre (lowercase, spaces to hyphens)
+          GENRE_FOLDER=$(echo "${{ inputs.genre }}" | sed 's/[^a-zA-Z0-9 ]//g' | tr '[:upper:]' '[:lower:]' | tr ' ' '-')
+          FOLDER="music/${GENRE_FOLDER}"
+
+          # Create folder if it doesn't exist
+          mkdir -p "${FOLDER}"
 
           # Create safe filename
           FILENAME=$(echo "${{ inputs.title }}" | sed 's/[^a-zA-Z0-9]/-/g' | tr '[:upper:]' '[:lower:]')
@@ -117,8 +103,29 @@ jobs:
           # Get next track ID
           next_id = max([track['id'] for track in data['tracks']], default=0) + 1
 
-          # Create new track entry
+          # Handle album - create new album entry if it doesn't exist
           album_value = album if album else None
+          if album_value:
+              # Check if album exists in albums array
+              existing_album = next((a for a in data.get('albums', []) if a['id'] == album_value), None)
+              if not existing_album:
+                  # Create new album entry
+                  # Convert album ID to title (e.g., "poetic-pain" -> "Poetic Pain")
+                  album_title = ' '.join(word.capitalize() for word in album_value.replace('-', ' ').split())
+
+                  new_album = {
+                      "id": album_value,
+                      "title": album_title,
+                      "genre": genre,
+                      "year": str(__import__('datetime').datetime.now().year),
+                      "artwork": os.environ.get('ARTWORK_FILE')  # Use first song's artwork
+                  }
+
+                  if 'albums' not in data:
+                      data['albums'] = []
+                  data['albums'].append(new_album)
+                  print(f"📀 Created new album: {album_title}")
+
           lyrics_value = lyrics if lyrics else None
 
           new_track = {
