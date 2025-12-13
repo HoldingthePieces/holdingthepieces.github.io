@@ -575,6 +575,9 @@
                 let dragStartX, dragStartY, buttonStartX, buttonStartY;
 
                 button.onmousedown = (e) => {
+                    // Prevent event from bubbling to Suno's page
+                    e.stopPropagation();
+
                     // Right side of button for dragging, left side for clicking
                     const rect = button.getBoundingClientRect();
                     const clickX = e.clientX - rect.left;
@@ -608,6 +611,19 @@
                     }
                 };
 
+                button.onclick = (e) => {
+                    // Prevent event from bubbling to Suno's page
+                    e.stopPropagation();
+                    e.preventDefault();
+
+                    // Only show dialog if we weren't dragging
+                    if (!isDragging) {
+                        songData = extractSongData();
+                        console.log('Extracted song data:', songData);
+                        showAddSongDialog();
+                    }
+                };
+
                 document.onmouseup = (e) => {
                     if (isDragging) {
                         isDragging = false;
@@ -619,11 +635,6 @@
                             right: button.style.right
                         };
                         localStorage.setItem('htpButtonPosition', JSON.stringify(position));
-                    } else if (e.target === button) {
-                        // Left half - trigger add song dialog
-                        songData = extractSongData();
-                        console.log('Extracted song data:', songData);
-                        showAddSongDialog();
                     }
                 };
 
