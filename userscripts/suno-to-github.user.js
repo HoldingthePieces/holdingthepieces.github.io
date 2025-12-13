@@ -347,7 +347,12 @@
                 <select id="song-album" style="width: 100%; padding: 12px; border: 2px solid #2a2a3e; border-radius: 6px; background: #16213e; color: #eee; font-size: 14px;">
                     <option value="">Single (No Album)</option>
                     ${ALBUMS.map(a => `<option value="${a.id}">${a.name}</option>`).join('')}
+                    <option value="CustomAlbum">Custom Album...</option>
                 </select>
+            </div>
+            <div id="custom-album-container" style="margin-bottom: 15px; display: none;">
+                <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #eee; font-size: 14px;">Custom Album Name:</label>
+                <input type="text" id="custom-album" placeholder="Enter album name" style="width: 100%; padding: 12px; border: 2px solid #2a2a3e; border-radius: 6px; box-sizing: border-box; background: #16213e; color: #eee; font-size: 14px;">
             </div>
             <div style="margin-bottom: 20px; padding: 15px; background: #16213e; border-radius: 6px; font-size: 13px; color: #aaa; border: 1px solid #2a2a3e;">
                 <strong style="color: #eee;">Duration:</strong> ${Math.floor(songData.duration / 60)}:${(songData.duration % 60).toString().padStart(2, '0')}<br>
@@ -392,6 +397,9 @@
         const genreSelect = dialog.querySelector('#song-genre');
         const customGenreContainer = dialog.querySelector('#custom-genre-container');
         const customGenreInput = dialog.querySelector('#custom-genre');
+        const albumSelect = dialog.querySelector('#song-album');
+        const customAlbumContainer = dialog.querySelector('#custom-album-container');
+        const customAlbumInput = dialog.querySelector('#custom-album');
 
         // Show/hide custom genre input
         genreSelect.onchange = () => {
@@ -403,6 +411,16 @@
             }
         };
 
+        // Show/hide custom album input
+        albumSelect.onchange = () => {
+            if (albumSelect.value === 'CustomAlbum') {
+                customAlbumContainer.style.display = 'block';
+                customAlbumInput.focus();
+            } else {
+                customAlbumContainer.style.display = 'none';
+            }
+        };
+
         cancelBtn.onclick = () => {
             overlay.remove();
             dialog.remove();
@@ -411,7 +429,7 @@
         dialog.querySelector('#add-song-btn').onclick = async () => {
             const title = dialog.querySelector('#song-title').value;
             let genre = dialog.querySelector('#song-genre').value;
-            const album = dialog.querySelector('#song-album').value;
+            let album = dialog.querySelector('#song-album').value;
 
             // Use custom genre if selected
             if (genre === 'Custom') {
@@ -422,6 +440,18 @@
                 }
                 genre = customGenre;
             }
+
+            // Use custom album if selected
+            if (album === 'CustomAlbum') {
+                const customAlbum = customAlbumInput.value.trim();
+                if (!customAlbum) {
+                    alert('Please enter a custom album name');
+                    return;
+                }
+                // Convert album name to ID format (lowercase, spaces to hyphens)
+                album = customAlbum.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+            }
+
             const statusEl = dialog.querySelector('#status-message');
 
             if (!title.trim()) {
