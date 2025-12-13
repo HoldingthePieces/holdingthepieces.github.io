@@ -47,7 +47,8 @@ async function loadMusicData() {
         // Render tracks
         renderTracks();
 
-        // Setup album filters
+        // Setup filters
+        setupGenreFilters();
         setupAlbumFilters();
 
         // Load first track (but don't play)
@@ -58,6 +59,25 @@ async function loadMusicData() {
         console.error('Error loading music data:', error);
         tracksContainer.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Error loading music. Please check your music.json file.</p>';
     }
+}
+
+// Setup genre filters dynamically
+function setupGenreFilters() {
+    // Get unique genres from tracks
+    const genres = [...new Set(musicData.tracks.map(track => track.genre))].sort();
+
+    // Clear and add "All" button
+    genreFilters.innerHTML = '<button class="genre-btn active" data-genre="all">All</button>';
+
+    // Add button for each genre
+    genres.forEach(genre => {
+        const btn = document.createElement('button');
+        btn.className = 'genre-btn';
+        btn.dataset.genre = genre;
+        btn.textContent = genre;
+        btn.addEventListener('click', () => filterByGenre(genre));
+        genreFilters.appendChild(btn);
+    });
 }
 
 // Setup album filters dynamically
@@ -299,13 +319,7 @@ filterBtns.forEach(btn => {
     });
 });
 
-// Genre filter buttons
-document.querySelectorAll('.genre-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-        const genre = btn.dataset.genre;
-        filterByGenre(genre);
-    });
-});
+// Note: Genre and album filter buttons are now set up dynamically in setupGenreFilters() and setupAlbumFilters()
 
 // Keyboard shortcuts
 document.addEventListener('keydown', (e) => {

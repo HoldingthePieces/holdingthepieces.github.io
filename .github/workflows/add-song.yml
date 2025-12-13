@@ -22,12 +22,7 @@ on:
       genre:
         description: 'Genre'
         required: true
-        type: choice
-        options:
-          - Emo Pop Rock
-          - Hip Hop
-          - Drum and Bass
-          - EDM
+        type: string
       album:
         description: 'Album ID (leave empty for single)'
         required: false
@@ -52,21 +47,12 @@ jobs:
 
       - name: Download audio file
         run: |
-          # Determine folder based on genre
-          case "${{ inputs.genre }}" in
-            "Emo Pop Rock")
-              FOLDER="music/emo-pop-rock"
-              ;;
-            "Hip Hop")
-              FOLDER="music/hip-hop"
-              ;;
-            "Drum and Bass")
-              FOLDER="music/drum-and-bass"
-              ;;
-            "EDM")
-              FOLDER="music/edm"
-              ;;
-          esac
+          # Create folder name from genre (lowercase, spaces to hyphens)
+          GENRE_FOLDER=$(echo "${{ inputs.genre }}" | sed 's/[^a-zA-Z0-9 ]//g' | tr '[:upper:]' '[:lower:]' | tr ' ' '-')
+          FOLDER="music/${GENRE_FOLDER}"
+
+          # Create folder if it doesn't exist
+          mkdir -p "${FOLDER}"
 
           # Create safe filename
           FILENAME=$(echo "${{ inputs.title }}" | sed 's/[^a-zA-Z0-9]/-/g' | tr '[:upper:]' '[:lower:]')

@@ -335,7 +335,12 @@
                     <option value="Hip Hop" ${songData.suggestedGenre === 'Hip Hop' ? 'selected' : ''}>Hip Hop</option>
                     <option value="Drum and Bass" ${songData.suggestedGenre === 'Drum and Bass' ? 'selected' : ''}>Drum & Bass</option>
                     <option value="EDM" ${songData.suggestedGenre === 'EDM' ? 'selected' : ''}>EDM</option>
+                    <option value="Custom">Custom...</option>
                 </select>
+            </div>
+            <div id="custom-genre-container" style="margin-bottom: 15px; display: none;">
+                <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #eee; font-size: 14px;">Custom Genre:</label>
+                <input type="text" id="custom-genre" placeholder="Enter genre name" style="width: 100%; padding: 12px; border: 2px solid #2a2a3e; border-radius: 6px; box-sizing: border-box; background: #16213e; color: #eee; font-size: 14px;">
             </div>
             <div style="margin-bottom: 15px;">
                 <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #eee; font-size: 14px;">Album (Optional):</label>
@@ -384,6 +389,20 @@
         cancelBtn.onmouseout = () => cancelBtn.style.transform = 'scale(1)';
 
         // Event listeners
+        const genreSelect = dialog.querySelector('#song-genre');
+        const customGenreContainer = dialog.querySelector('#custom-genre-container');
+        const customGenreInput = dialog.querySelector('#custom-genre');
+
+        // Show/hide custom genre input
+        genreSelect.onchange = () => {
+            if (genreSelect.value === 'Custom') {
+                customGenreContainer.style.display = 'block';
+                customGenreInput.focus();
+            } else {
+                customGenreContainer.style.display = 'none';
+            }
+        };
+
         cancelBtn.onclick = () => {
             overlay.remove();
             dialog.remove();
@@ -391,8 +410,18 @@
 
         dialog.querySelector('#add-song-btn').onclick = async () => {
             const title = dialog.querySelector('#song-title').value;
-            const genre = dialog.querySelector('#song-genre').value;
+            let genre = dialog.querySelector('#song-genre').value;
             const album = dialog.querySelector('#song-album').value;
+
+            // Use custom genre if selected
+            if (genre === 'Custom') {
+                const customGenre = customGenreInput.value.trim();
+                if (!customGenre) {
+                    alert('Please enter a custom genre name');
+                    return;
+                }
+                genre = customGenre;
+            }
             const statusEl = dialog.querySelector('#status-message');
 
             if (!title.trim()) {
